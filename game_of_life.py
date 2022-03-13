@@ -22,7 +22,7 @@ class Game:
         
         self.__lastSimuUpdate = timer()
         self.isSimuRunning = False
-        self.simuDelta = 200 #ms
+        self.simuDelta = .200 #s
 
         self.over = False
    
@@ -48,11 +48,12 @@ class Game:
 
 
 class GoLModel:
-    def __init__(self, x, y) -> None:
+    def __init__(self, x, y, noBorder=True) -> None:
         self.x = x
         self.y = y
         self.field = [[ False for _y in range(y)] for _x in range(x)]
-    
+        self.noBorder = noBorder
+
     def toggleFieldID(self, x, y):
         try:
             self.field[x][y] = not self.field[x][y]
@@ -60,23 +61,40 @@ class GoLModel:
             pass
 
     def doIteration(self):
-        field = [[ False for _y in range(y)] for _x in range(x)]
+        field = [[ False for _y in range(self.y)] for _x in range(self.x)]
+        for x in range(self.x):
+            for y in range(self.y):
+                n = self.countNeighbours(x,y)
+                c = field[x][y]
+                l = False
+                if c and n==2:
+                    l = True
+                if n==3:
+                    l = True
+                field[x][y] = l
+        return field
 
       
-    def countNeighbours(self, px, py, noBorder=True):
+    def countNeighbours(self, px, py):
         neighbours = 0
-        # for x in range(px-1, px+1):
-        #     if px < 0 and noBorder:
-        #         continue
-        #     else:
-        #         px = self.x-1    
-        #     for y in range(py-1, py+1):
-        #         if (py < 0 and not noBorder:
-        #             continue
-        #         else:
-        #             py = self.y-1
-        #         if self.field[px][py]:
-        #             neighbours += 1
+        for x in range(px-1, px+1):
+            for y in range(py-1, py+1):
+                if self.noBorder:
+                    if px < 0:
+                        px = self.x - 1
+                    if px >= self.x:
+                        px = 0
+                    if py < 0:
+                        py = self.y - 1
+                    if py >= self.y:
+                        py = 0
+                elif px < 0 or px >= self.x or py < 0 or py >= self.y:
+                    continue
+                try:
+                    if self.field[x][y]:
+                        neighbours += 1
+                except:
+                    pass
         return neighbours
 
 class GoLView:
@@ -146,6 +164,7 @@ class Application:
                 self.toggleStartStop()
             else:
                 self.game.dispatch(event, values)
+            self.game.tryUpdateSimu()
 
     def toggleStartStop(self):
         self.game.isSimuRunning = not self.game.isSimuRunning
