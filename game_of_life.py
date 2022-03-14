@@ -20,17 +20,19 @@ class Game:
         self.model = GoLModel(x,y)
         self.viewmodel = GoLViewModel(self.view, self.model)
         
-        self.__lastSimuUpdate = timer()
+        self._lastSimuUpdate = timer()
         self.isSimuRunning = False
         self.simuDelta = .200 #s
 
         self.over = False
-   
+    
     def tryUpdateSimu(self):
         if(self.isSimuRunning):
-            if(self.__lastSimuUpdate - timer() > self.simuDelta):
+            now = timer()
+            if((now - self._lastSimuUpdate) > self.simuDelta):
                 self.model.doIteration()
-                self.__lastSimuUpdate = timer()
+                self._lastSimuUpdate = now
+                self.view.renderBoxes(self.model.field)
     
     def getGraph(self):
         return self.view.graph
@@ -65,36 +67,37 @@ class GoLModel:
         for x in range(self.x):
             for y in range(self.y):
                 n = self.countNeighbours(x,y)
-                c = field[x][y]
+                c = self.field[x][y]
                 l = False
                 if c and n==2:
                     l = True
                 if n==3:
                     l = True
                 field[x][y] = l
-        return field
+        self.field = field
+        return 
 
-      
     def countNeighbours(self, px, py):
         neighbours = 0
-        for x in range(px-1, px+1):
-            for y in range(py-1, py+1):
-                if self.noBorder:
-                    if px < 0:
-                        px = self.x - 1
-                    if px >= self.x:
-                        px = 0
-                    if py < 0:
-                        py = self.y - 1
-                    if py >= self.y:
-                        py = 0
-                elif px < 0 or px >= self.x or py < 0 or py >= self.y:
+        for _x in range(px-1, px+2):
+            for _y in range(py-1, py+2):
+                x = _x
+                y = _y
+                if x == px and y == py:
                     continue
-                try:
-                    if self.field[x][y]:
-                        neighbours += 1
-                except:
-                    pass
+                if self.noBorder:
+                    if x < 0:
+                        x = self.x - 1
+                    if x >= self.x:
+                        x = 0
+                    if y < 0:
+                        y = self.y - 1
+                    if y >= self.y:
+                        y = 0
+                elif x < 0 or x >= self.x or y < 0 or y >= self.y:
+                    continue
+                if self.field[x][y]:
+                    neighbours += 1
         return neighbours
 
 class GoLView:
@@ -141,7 +144,7 @@ class GoLViewModel:
 
 class Application:
     def __init__(self) -> None:
-        self.game = Game(10, 10, 30)
+        self.game = Game(20, 20, 30)
         self.button = sg.Button('  Start  ', key=getUID(10))
 
         self.window = sg.Window(
@@ -169,9 +172,9 @@ class Application:
     def toggleStartStop(self):
         self.game.isSimuRunning = not self.game.isSimuRunning
         if(self.game.isSimuRunning):
-            self.button.Update(text=' Start ')
-        else:
             self.button.Update(text=' Stop  ')
+        else:
+            self.button.Update(text=' Start ')
 
 
 def main():
