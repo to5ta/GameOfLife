@@ -14,12 +14,35 @@ def getUID(length=10) -> str:
     return uid
 
 
+class Observable(object):
+    def __init__(self) -> None:
+        self.eventHandler = {}
+
+    def registerHandler(self, other, handler):
+        self.eventHandler[other] = handler
+    
+    def unregisterHandler(self, other):
+        try:
+            del self.eventHandler[other]
+        except:
+            print("WARN: No object not found for deleting its EventHandler")
+
+    def onPropertyChanged(self):
+        for ob, eventhandler in self.eventHandler.items():
+            getattr(ob, eventhandler)(self)
+
+            
+
 class Game:
     def __init__(self, x: int, y: int, res: float) -> None:
         self.model = GoLModel(x,y)
         self.viewmodel = GoLViewModel(self.model, res, x, y)
-        self.view = GoLView(x, y, res, self.viewmodel)
+        self.view = GoLView(x, y, res)
         
+        self.viewmodel.registerHandler(self.view, self.view.onViewModelChanged.__name__)
+        self.viewmodel.registerHandler(self.model, self.model.onViewModelChanged.__name__)
+        self.model.registerHandler(self.viewmodel, self.viewmodel.onModelChanged.__name__)
+
         self._lastSimuUpdate = timer()
         self.isSimuRunning = False
         self.simuDelta = .200 #s
@@ -32,7 +55,6 @@ class Game:
             if((now - self._lastSimuUpdate) > self.simuDelta):
                 self.model.doIteration()
                 self._lastSimuUpdate = now
-                self.view.renderBoxes(self.model.field)
     
     def getGraph(self):
         return self.view.graph
@@ -49,18 +71,16 @@ class Game:
         self.simuDelta = delta
 
 
-class GoLModel:
+class GoLModel(Observable):
     def __init__(self, x, y, noBorder=True) -> None:
+        super(GoLModel, self).__init__()
         self.x = x
         self.y = y
         self.field = [[ False for _y in range(y)] for _x in range(x)]
         self.noBorder = noBorder
-
-    def toggleFieldID(self, x, y):
-        try:
-            self.field[x][y] = not self.field[x][y]
-        except:
-            pass
+    
+    def onViewModelChanged(self, viewmodel):
+        self.field = viewmodel.field
 
     def doIteration(self):
         field = [[ False for _y in range(self.y)] for _x in range(self.x)]
@@ -75,6 +95,7 @@ class GoLModel:
                     l = True
                 field[x][y] = l
         self.field = field
+        self.onPropertyChanged()
         return 
 
     def countNeighbours(self, px, py):
@@ -102,21 +123,30 @@ class GoLModel:
 
 
 # should only know about Model changes / use model methods 
-class GoLViewModel:
-    def __init__(self, model, res: int, x: int, y: int) -> None:
+class GoLViewModel(Observable):
+    def __init__(self, model : GoLModel, res: int, x: int, y: int) -> None:
+        super(GoLViewModel, self).__init__()
         self.model = model
         self.res = res
         self.field = [[ False for _y in range(y)] for _x in range(x)]
-        pass
 
-    def toggleFieldPx(self, x, y):
-        self.model.toggleFieldID(x//self.res, y//self.res)
-    pass
+    def toggleFieldPx(self, px, py):
+        try:
+            x = px//self.res 
+            y = py//self.res
+            self.field[x][y] = not self.field[x][y]
+            self.onPropertyChanged()
+        except:
+            pass
+    
+    def onModelChanged(self, model : GoLModel):
+        self.field = model.field
+        self.onPropertyChanged()
 
 
 # should only know about ViewModel changes
 class GoLView:
-    def __init__(self, x: int, y: int, res: float, viewModel: GoLViewModel) -> None:
+    def __init__(self, x: int, y: int, res: float) -> None:
         self.resolution = res
         self.graph_uid = getUID(10)
         self.graph = sg.Graph(
@@ -126,9 +156,8 @@ class GoLView:
             key=self.graph_uid,
             enable_events=True,
             background_color='lightgrey')
-        setattr(self, 'field', viewModel.field) # bind on field 
 
-    def addBox(self, x, y) -> None:
+    def _addBox(self, x, y) -> None:
         res = self.resolution
         self.graph.draw_rectangle(
             (x * res, y * res),
@@ -136,14 +165,15 @@ class GoLView:
             line_color='black', fill_color='yellow')
 
     def renderBoxes(self, boxes) -> None:
-        self.clear()
+        self.graph.erase()
         for x, box_col in enumerate(boxes):
             for y, box in enumerate(box_col):
                 if box:
-                    self.addBox(x,y)
+                    self._addBox(x,y)
+    
+    def onViewModelChanged(self, viewModel: GoLViewModel):
+        self.renderBoxes(viewModel.field)
 
-    def clear(self) -> None:
-        self.graph.erase()
 
 
 
