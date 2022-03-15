@@ -16,9 +16,9 @@ def getUID(length=10) -> str:
 
 class Game:
     def __init__(self, x: int, y: int, res: float) -> None:
-        self.view = GoLView(x,y,res)
         self.model = GoLModel(x,y)
-        self.viewmodel = GoLViewModel(self.view, self.model)
+        self.viewmodel = GoLViewModel(self.model, res, x, y)
+        self.view = GoLView(x, y, res, self.viewmodel)
         
         self._lastSimuUpdate = timer()
         self.isSimuRunning = False
@@ -100,8 +100,23 @@ class GoLModel:
                     neighbours += 1
         return neighbours
 
+
+# should only know about Model changes / use model methods 
+class GoLViewModel:
+    def __init__(self, model, res: int, x: int, y: int) -> None:
+        self.model = model
+        self.res = res
+        self.field = [[ False for _y in range(y)] for _x in range(x)]
+        pass
+
+    def toggleFieldPx(self, x, y):
+        self.model.toggleFieldID(x//self.res, y//self.res)
+    pass
+
+
+# should only know about ViewModel changes
 class GoLView:
-    def __init__(self, x: int, y: int, res: float) -> None:
+    def __init__(self, x: int, y: int, res: float, viewModel: GoLViewModel) -> None:
         self.resolution = res
         self.graph_uid = getUID(10)
         self.graph = sg.Graph(
@@ -111,6 +126,7 @@ class GoLView:
             key=self.graph_uid,
             enable_events=True,
             background_color='lightgrey')
+        setattr(self, 'field', viewModel.field) # bind on field 
 
     def addBox(self, x, y) -> None:
         res = self.resolution
@@ -130,16 +146,6 @@ class GoLView:
         self.graph.erase()
 
 
-class GoLViewModel:
-    def __init__(self, view, model) -> None:
-        self.view = view
-        self.model = model
-        self.res = view.resolution
-        pass
-
-    def toggleFieldPx(self, x, y):
-        self.model.toggleFieldID(x//self.res, y//self.res)
-    pass
 
 
 class Application:
