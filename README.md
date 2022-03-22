@@ -11,6 +11,7 @@ Simple App to simulate [Conways Game of Life](https://en.wikipedia.org/wiki/Conw
 ## Ideas
 
 * Slider for simulation speed
-* load / save function + menu
-* predefined pattern placement, select from menu + click to place
-* game settings for resizing the field and toggle border behaviour 
+* Load / save function + menu
+* Predefined pattern placement, select from menu + click to place
+* Game settings for resizing the field and toggle border behaviour
+* Step forwards / backwards using memento Pattern  
