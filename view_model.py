@@ -19,7 +19,7 @@ class GoLViewModel(Subscribable):
     def start(self):
         self.isRunning = True
         self.contactSubscribers()
-
+    
     def stop(self):
         self.isRunning = False
         self.contactSubscribers()
