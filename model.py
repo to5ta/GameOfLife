@@ -1,15 +1,29 @@
-from observable import *
+from subscribable import Subscribable
+from timeit import default_timer as timer
 
-class GoLModel(Observable):
+from view_model import GoLViewModel
+class GoLModel(Subscribable):
     def __init__(self, x, y, noBorder=True) -> None:
         super(GoLModel, self).__init__()
         self.x = x
         self.y = y
         self.field = [[ False for _y in range(y)] for _x in range(x)]
         self.noBorder = noBorder
+
+        self._lastSimuUpdate = timer()
+        self.isSimuRunning = False
+        self.simuDelta = .200 #s
     
-    def onViewModelChanged(self, viewmodel):
+    def tryUpdateSimulation(self):
+        if(self.isSimuRunning):
+            now = timer()
+            if((now - self._lastSimuUpdate) > self.simuDelta):
+                self.doIteration()
+                self._lastSimuUpdate = now
+    
+    def onChange(self, viewmodel: GoLViewModel):
         self.field = viewmodel.field
+        self.isSimuRunning = viewmodel.isRunning
 
     def doIteration(self):
         field = [[ False for _y in range(self.y)] for _x in range(self.x)]
@@ -24,7 +38,7 @@ class GoLModel(Observable):
                     l = True
                 field[x][y] = l
         self.field = field
-        self.onPropertyChanged()
+        self.contactSubscribers()
         return 
 
     def countNeighbours(self, px, py):
