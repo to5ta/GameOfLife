@@ -6,6 +6,7 @@ class GoLViewModel(Subscribable):
         self.res = res
         self.field = [[ False for _y in range(y)] for _x in range(x)]
         self.isRunning = False
+        self.simuDelta = 100
 
     def toggleFieldPx(self, px, py):
         try:
@@ -24,7 +25,12 @@ class GoLViewModel(Subscribable):
         self.isRunning = False
         self.contactSubscribers()
     
+    def setSimuDelta(self, ms):
+        self.simuDelta = ms / 1000.
+        self.contactSubscribers()
+    
     def onChange(self, model):
         self.field = model.field
+        self.simuDelta = model.simuDelta
         self.contactSubscribers()
 

@@ -19,13 +19,26 @@ class GoLView(Subscribable):
             background_color='lightgrey')
         
         self.stopped = True
-        self.button = sg.Button('  Start  ', key=getUID(10))
+        self.button = sg.Button(
+            '  Start  ',
+            key=getUID(10))
+
+        self.speedSlider = sg.Slider(
+            key=getUID(10),
+            range=(10,700), 
+            default_value=200, 
+            resolution=1, 
+            orientation='h',
+            tooltip="Simulation Cycle in ms",
+            enable_events=True,
+            size=(55, 10))
+
         self.window = sg.Window(
             'Conways Game of Life', 
             [[self.graph], 
-             [self.button]],
+             [self.button, self.speedSlider]],
             return_keyboard_events=True) 
-        
+                
         self.terminated = False
 
     def _addBox(self, x, y) -> None:
@@ -44,10 +57,11 @@ class GoLView(Subscribable):
     
     def onChange(self, viewModel: GoLViewModel):
         self._renderBoxes(viewModel.field)
+        self.speedSlider.DefaultValue = viewModel.simuDelta * 1000
 
     def handleEvents(self):
         if not self.terminated:
-            event, values = self.window.read(timeout=500) 
+            event, values = self.window.read(timeout=17) 
             self.dispatchEvents(event, values)
 
     def toggleStartStop(self):
@@ -60,6 +74,9 @@ class GoLView(Subscribable):
             self.viewModel.stop()
             self.button.Update(text=' Start ')
     
+    def __del__(self):
+        self.window.close()
+    
     def dispatchEvents(self, event, values):
         if event == sg.WIN_CLOSED:
             self.window.close()
@@ -68,6 +85,8 @@ class GoLView(Subscribable):
             pass
         elif event == self.button.Key:
             self.toggleStartStop()        
+        elif event == self.speedSlider.Key:
+            self.viewModel.setSimuDelta(values[event])
         elif (self.stopped and event == self.graph_uid):
             self.viewModel.toggleFieldPx( *values[self.graph_uid] )   
 

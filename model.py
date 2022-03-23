@@ -23,6 +23,7 @@ class GoLModel(Subscribable):
     
     def onChange(self, viewmodel: GoLViewModel):
         self.field = viewmodel.field
+        self.simuDelta = viewmodel.simuDelta
         self.isSimuRunning = viewmodel.isRunning
 
     def doIteration(self):

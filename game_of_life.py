@@ -20,8 +20,6 @@ class Game:
         self.viewmodel.subscribeTo(self.model)
         self.model.subscribeTo(self.viewmodel)
         
-        self.over = False
-
 
 class Application:
     def __init__(self) -> None:
@@ -29,7 +27,7 @@ class Application:
         self.terminated = False
     
     def run(self):
-        while not self.game.over:
+        while not self.game.view.terminated:
             self.game.view.handleEvents()
             self.game.model.tryUpdateSimulation()
 
