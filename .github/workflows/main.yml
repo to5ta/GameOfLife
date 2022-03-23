@@ -24,6 +24,12 @@ jobs:
     
     - name: Run unittests with pytest 🔧
       run: |
-        pytest -v tests/
+        pytest -v tests/ --junit-xml tests/results.xml
       env:
         CI: true
+    
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: "tests/results.xml"
