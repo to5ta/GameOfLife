@@ -6,7 +6,7 @@ class GoLViewModel(Subscribable):
         self.res = res
         self.field = [[ False for _y in range(y)] for _x in range(x)]
         self.isRunning = False
-        self.simuDelta = 100
+        self.simuDelta = .2
 
     def toggleFieldPx(self, px, py):
         try:
