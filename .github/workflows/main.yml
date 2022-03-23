@@ -21,3 +21,9 @@ jobs:
         pip3 install pytest
       env:
         CI: true
+    
+    - name: Run unittests with pytest 🔧
+      run: |
+        pytest -v tests/
+      env:
+        CI: true
