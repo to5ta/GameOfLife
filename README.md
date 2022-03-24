@@ -5,7 +5,7 @@ Application to simulate [Conways Game of Life](https://en.wikipedia.org/wiki/Con
 
 ## GUI
 * Start/Stop Simulation
-* Record frames on/off
+* Record frames on/off: If enabled, screenshots will be stored unter ./records/
 
 ![](documentation/capture.gif)
 
