@@ -15,9 +15,9 @@ See [Github Actions](https://github.com/to5ta/GameOfLife/actions/workflows/main.
 
 ## Ideas
 
-* ~~Slider for simulation speed~~
-* ~~Render image sequences from the simulation~~
-* Load / save function + menu
-* Predefined pattern placement, select from menu + click to place
-* Game settings for resizing the field and toggle border behaviour
-* Step forwards / backwards using memento Pattern  
+&#x2611; ~~Slider for simulation speed~~  
+&#x2611; ~~Render image sequences from the simulation~~  
+&#x2610; Load / save function + menu  
+&#x2610; Predefined pattern placement, select from menu + click to place  
+&#x2610; Game settings for resizing the field and toggle border behaviour  
+&#x2610; Step forwards / backwards using memento Pattern   
