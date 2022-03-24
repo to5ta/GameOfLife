@@ -8,7 +8,7 @@
             "name": "GameOfLifeApp",
             "type": "python",
             "request": "launch",
-            "program": "game_of_life.py",
+            "program": "src/game_of_life.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }
