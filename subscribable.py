@@ -14,8 +14,9 @@ class Subscribable(object):
             del Subscribable.subscribers[other]
 
     def contactSubscribers(self):
-        for other in Subscribable.subscribers[self]:
-            other.onChange(self)
+        if self in Subscribable.subscribers.keys():
+            for other in Subscribable.subscribers[self]:
+                other.onChange(self)
     
     def onChange(self, other):
         raise NotImplementedError()
