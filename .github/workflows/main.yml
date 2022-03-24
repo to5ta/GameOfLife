@@ -24,7 +24,7 @@ jobs:
     
     - name: Run unittests with pytest 🔧
       run: |
-        pytest -v --cov=src .\tests\ --junit-xml tests/results.xml
+        pytest -v --cov=src tests/ --junit-xml tests/results.xml
       env:
         CI: true
     
