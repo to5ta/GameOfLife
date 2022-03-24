@@ -4,9 +4,10 @@ Application to simulate [Conways Game of Life](https://en.wikipedia.org/wiki/Con
 
 
 ## GUI
-* Currently only supports start / stop
+* Start/Stop Simulation
+* Record frames on/off
 
-![](documentation/gui_v01.PNG)
+![](documentation/capture.gif)
 
 ## Tests
 
@@ -15,8 +16,8 @@ See [Github Actions](https://github.com/to5ta/GameOfLife/actions/workflows/main.
 ## Ideas
 
 * ~~Slider for simulation speed~~
+* ~~Render image sequences from the simulation~~
 * Load / save function + menu
 * Predefined pattern placement, select from menu + click to place
 * Game settings for resizing the field and toggle border behaviour
 * Step forwards / backwards using memento Pattern  
-* Render image sequences from the simulation

@@ -4,8 +4,21 @@ import os
 
 import PySimpleGUI as sg
 from PIL import ImageGrab
-
 from view_model import GoLViewModel
+import numpy as np
+
+recorded_frames = 0
+record_session = getUID(5)
+
+def windowToImage(window : sg.Window, filepath : str):
+    window.refresh()
+    lx, ly = window.CurrentLocation()
+    x, y = window.size
+    coord = np.array((lx+7, ly,(x+5+lx +5), (y+ly+30))) * 1.5
+    grab = ImageGrab.grab(bbox=coord.tolist(), all_screens=True)
+    if not os.path.isdir(os.path.dirname(filepath)):
+        os.makedirs(os.path.dirname(filepath))
+    grab.save(filepath)
 
 def graphToImage(graph : sg.Graph, filepath : str):
     widget = graph.Widget
@@ -42,19 +55,24 @@ class GoLView(Subscribable):
 
         self.speedSlider = sg.Slider(
             key=getUID(10),
-            range=(10,700),
+            range=(10,750),
             default_value=200,
             resolution=1,
             orientation='h',
             tooltip="Simulation Cycle in ms",
             enable_events=True,
-            size=(55, 10))
+            size=(50, 10))
+
+        self.renderCheckbox = sg.Checkbox(
+            "Record", 
+            key=getUID(10),
+            enable_events=True)
 
         self.window = sg.Window(
             'Conways Game of Life',
             [[self.graph],
-             [self.button, self.speedSlider]],
-            return_keyboard_events=True)
+             [self.button, self.renderCheckbox, self.speedSlider]],
+            return_keyboard_events=True)        
 
         self.terminated = False
 
@@ -72,9 +90,10 @@ class GoLView(Subscribable):
                 if box:
                     self._addBox(x,y)
         if (self.record):
-            pass
-            # graphToImage(self.graph, "records/"+getUID()+".jpg")
-
+            global recorded_frames, record_session
+            windowToImage(self.window, f"records/{record_session}_{recorded_frames:04}.jpg")
+            recorded_frames += 1
+            
     def onChange(self, viewModel: GoLViewModel):
         self._renderBoxes(viewModel.field)
         self.speedSlider.DefaultValue = viewModel.simuDelta * 1000
@@ -109,5 +128,7 @@ class GoLView(Subscribable):
             self.viewModel.setSimuDelta(values[event])
         elif (self.stopped and event == self.graph_uid):
             self.viewModel.toggleFieldPx( *values[self.graph_uid] )
+        elif event == self.renderCheckbox.Key:
+            self.record = values[event]
 
 
