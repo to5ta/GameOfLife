@@ -13,7 +13,7 @@ from view import GoLView
 class Game:
     def __init__(self, x: int, y: int, res: float) -> None:
         self.model = GoLModel(x,y)
-        self.viewmodel = GoLViewModel(res, x, y)
+        self.viewmodel = GoLViewModel(res, x, y, self.model)
         self.view = GoLView(x, y, res, self.viewmodel)
 
         self.view.subscribeTo(self.viewmodel)

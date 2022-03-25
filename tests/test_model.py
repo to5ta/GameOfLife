@@ -46,9 +46,9 @@ class TestGoLModel(unittest.TestCase):
                  [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
                  [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
                  [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]]
-        model.doIteration()
+        field = model.generateNextIteration()
 
-        self.assertEqual(model.field, after, "Field did not equal expected outcome after an Iteration!")
+        self.assertEqual(field, after, "Field did not equal expected outcome after an Iteration!")
 
     def testCountNeighbours(self):
         size = {"x": 5, "y": 5}

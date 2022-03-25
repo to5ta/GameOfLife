@@ -1,12 +1,13 @@
 from subscribable import Subscribable
 
 class GoLViewModel(Subscribable):
-    def __init__(self, res: int, x: int, y: int) -> None:
+    def __init__(self, res: int, x: int, y: int, model) -> None:
         super(GoLViewModel, self).__init__()
         self.res = res
         self.field = [[ False for _y in range(y)] for _x in range(x)]
         self.isRunning = False
         self.simuDelta = .2
+        self.model = model
 
     def toggleFieldPx(self, px, py):
         try:
@@ -33,4 +34,15 @@ class GoLViewModel(Subscribable):
         self.field = model.field
         self.simuDelta = model.simuDelta
         self.contactSubscribers()
+    
+    def stepForward(self):
+        if not self.isRunning:
+            self.model.forwardStep()
+    
+    def stepBackward(self):
+        if not self.isRunning:
+            self.model.backwardStep()
+    
+    def setCacheSize(self, size):
+        self.model.setCacheSize(size)
 

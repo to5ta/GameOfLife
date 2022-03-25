@@ -52,6 +52,20 @@ class GoLView(Subscribable):
         self.button = sg.Button(
             '  Start  ',
             key=getUID(10))
+        
+        self.buttonForward = sg.Button(
+            ' >> ',
+            key=getUID(10))
+        
+        self.buttonBackward = sg.Button(
+            ' << ',
+            key=getUID(10))
+        
+        self.cacheSize = sg.InputText(
+            '<cache size, default: 20>', 
+            enable_events=True,
+            key=getUID(10)
+        )
 
         self.speedSlider = sg.Slider(
             key=getUID(10),
@@ -71,7 +85,8 @@ class GoLView(Subscribable):
         self.window = sg.Window(
             'Conways Game of Life',
             [[self.graph],
-             [self.button, self.renderCheckbox, self.speedSlider]],
+             [self.button, self.renderCheckbox, self.speedSlider],
+             [self.buttonBackward, self.buttonForward, self.cacheSize]],
             return_keyboard_events=True)        
 
         self.terminated = False
@@ -89,7 +104,7 @@ class GoLView(Subscribable):
             for y, box in enumerate(box_col):
                 if box:
                     self._addBox(x,y)
-        if (self.record):
+        if self.record and not self.terminated:
             global recorded_frames, record_session
             windowToImage(self.window, f"records/{record_session}_{recorded_frames:04}.jpg")
             recorded_frames += 1
@@ -130,5 +145,15 @@ class GoLView(Subscribable):
             self.viewModel.toggleFieldPx( *values[self.graph_uid] )
         elif event == self.renderCheckbox.Key:
             self.record = values[event]
-
-
+        elif event == self.buttonForward.Key:
+            self.viewModel.stepForward()
+        elif event == self.buttonBackward.Key:
+            self.viewModel.stepBackward()
+        elif event == self.cacheSize.Key:
+            try:
+                cacheSize = int(values[event])
+                self.viewModel.setCacheSize(cacheSize)
+                self.cacheSize.update(background_color="#FFFFFF")        
+                print(f"Set Cache Length to {values[event]}")
+            except:
+                self.cacheSize.update(background_color="#FF0000")        
