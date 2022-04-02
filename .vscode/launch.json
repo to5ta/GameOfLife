@@ -11,6 +11,18 @@
             "program": "src/game_of_life.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        }, 
+        {
+            "name": "Unittests @ GoL",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",
+                "--cov=src",
+                "--rootdir=tests/",
+                "--junit-xml=tests/results.xml"
+            ],
         }
     ]
 }

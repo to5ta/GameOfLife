@@ -1,10 +1,11 @@
 import unittest
 import parentDirectory
 from model import GoLModel
+import numpy as np
 
 class TestGoLModel(unittest.TestCase):
     def testDoIteration(self):
-        model = GoLModel(20, 20, True)
+        model = GoLModel(20, 20, 10, True)
         before =  [[False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True,  False],
                    [False, False, False, False, False, False, False, False, False, False, False, False, False, True,  True,  True,  True,  True,  False, False],
                    [False, False, False, True,  False, False, False, False, False, False, False, False, False, False, True,  False, True,  False, False, False],
@@ -25,7 +26,7 @@ class TestGoLModel(unittest.TestCase):
                    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
                    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
                    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]]
-        model.field = before
+        model.field_data[model.field_data_index] = np.array(before)
         after = [[False, False, False, False, False, False, False, False, False, False, False, False, False, False, True,  True,  True,  True,  False, False],
                  [False, False, False, False, False, False, False, False, False, False, False, False, False, True,  True,  False, True,  True,  False, False],
                  [False, False, False, False, False, False, False, False, False, False, False, False, False, True,  True,  False, False, False, False, False],
@@ -48,16 +49,16 @@ class TestGoLModel(unittest.TestCase):
                  [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]]
         field = model.generateNextIteration()
 
-        self.assertEqual(field, after, "Field did not equal expected outcome after an Iteration!")
+        self.assertTrue(np.array_equal(field, np.array(after)), "Field did not equal expected outcome after an Iteration!")
 
     def testCountNeighbours(self):
         size = {"x": 5, "y": 5}
-        model = GoLModel(size["x"], size["y"], True)
+        model = GoLModel(size["x"], size["y"], 10, True)
         neighbours = [[ 0 for _y in range(size["y"])] for _x in range(size["x"])]
-        model.field[2][2] = True
-        model.field[2][3] = True
-        model.field[2][1] = True
-        model.field[1][2] = True
+        model.field_data[model.field_data_index][2][2] = True
+        model.field_data[model.field_data_index][2][3] = True
+        model.field_data[model.field_data_index][2][1] = True
+        model.field_data[model.field_data_index][1][2] = True
         for x in range(size["x"]):
             for y in range(size["y"]):
                 n = model.countNeighbours(x,y)
