@@ -5,7 +5,7 @@ class GoLViewModel(Subscribable):
     def __init__(self, res: int, x: int, y: int, model) -> None:
         super(GoLViewModel, self).__init__()
         self.res = res
-        self.field = np.zeros(shape=(x,y), dtype=bool) #[[ False for _y in range(y)] for _x in range(x)]
+        self.field = np.zeros(shape=(x,y), dtype=bool)
         self.isRunning = False
         self.simuDelta = .2
         self.model = model
@@ -32,7 +32,7 @@ class GoLViewModel(Subscribable):
         self.contactSubscribers()
     
     def onChange(self, model):
-        self.field = model.field
+        self.field = model.field_data[model.field_data_index]
         self.simuDelta = model.simuDelta
         self.contactSubscribers()
     

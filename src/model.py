@@ -8,7 +8,7 @@ class GoLModel(Subscribable):
         super(GoLModel, self).__init__()
         self.x = x
         self.y = y
-        self.field = np.zeros(shape=(x,y), dtype=bool)
+        # self.field = np.zeros(shape=(x,y), dtype=bool)
         self.noBorder = noBorder
 
         self._lastSimuUpdate = timer()
@@ -24,8 +24,8 @@ class GoLModel(Subscribable):
     def forwardStep(self):
         if (self.current_hist_size < self.hist_size):
             self.current_hist_size += 1
-        self.field = self.generateNextIteration()
-        self.field_data[self.field_data_index] = self.field
+        self.generateNextIteration()
+        # self.field_data[self.field_data_index] = self.field
         self.field_data_index = (self.field_data_index+1) % self.hist_size 
         self.contactSubscribers()
         # print(f"Current History Size: {self.current_hist_size}")
@@ -34,7 +34,7 @@ class GoLModel(Subscribable):
         if(self.current_hist_size > 0):
             self.current_hist_size -= 1
             self.field_data_index = (self.field_data_index-1) % self.hist_size 
-            self.field = self.field_data[self.field_data_index]
+            # self.field = self.field_data[self.field_data_index]
             self.contactSubscribers()
             # print(f"Current History Size: {self.current_hist_size}")
 
@@ -47,7 +47,7 @@ class GoLModel(Subscribable):
                 self._lastSimuUpdate = now
     
     def onChange(self, viewmodel: GoLViewModel):
-        self.field = viewmodel.field
+        self.field_data[self.field_data_index] = viewmodel.field
         self.simuDelta = viewmodel.simuDelta
         self.isSimuRunning = viewmodel.isRunning
     
@@ -56,12 +56,13 @@ class GoLModel(Subscribable):
         self.cache = self.cache[:size]
 
     def generateNextIteration(self):
-        field = np.zeros(shape=self.field.shape, dtype=bool)
-        #field[].fill()
+        # field = np.zeros(shape=self.field.shape, dtype=bool)
+        i = self.field_data_index + 1
+        field = self.field_data[i]
         for x in range(self.x):
             for y in range(self.y):
                 n = self.countNeighbours(x,y)
-                c = self.field[x][y]
+                c = self.field_data[self.field_data_index][x][y]
                 l = False
                 if c and n==2:
                     l = True
@@ -91,7 +92,7 @@ class GoLModel(Subscribable):
                         y = 0
                 elif x < 0 or x >= self.x or y < 0 or y >= self.y:
                     continue
-                if self.field[x][y]:
+                if self.field_data[self.field_data_index][x][y]:
                     neighbours += 1
         return neighbours
 
