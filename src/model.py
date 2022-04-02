@@ -57,6 +57,7 @@ class GoLModel(Subscribable):
 
     def generateNextIteration(self):
         field = np.zeros(shape=self.field.shape, dtype=bool)
+        field[].fill()
         for x in range(self.x):
             for y in range(self.y):
                 n = self.countNeighbours(x,y)
