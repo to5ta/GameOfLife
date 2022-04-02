@@ -1,36 +1,43 @@
 from subscribable import Subscribable
 from timeit import default_timer as timer
+import numpy as np
 
 from view_model import GoLViewModel
 class GoLModel(Subscribable):
-    def __init__(self, x, y, noBorder=True) -> None:
+    def __init__(self, x, y, hist_size=99, noBorder=True) -> None:
         super(GoLModel, self).__init__()
         self.x = x
         self.y = y
-        self.field = [[ False for _y in range(y)] for _x in range(x)]
+        self.field = np.zeros(shape=(x,y), dtype=bool)
         self.noBorder = noBorder
 
         self._lastSimuUpdate = timer()
         self.isSimuRunning = False
         self.simuDelta = .200 #s
 
-    
-        self.cache = []
-        self.cache_length = 10
+        self.field_data = np.zeros(shape=(hist_size,x,y), dtype=bool)
+        self.field_data_index = 0
+
+        self.hist_size = hist_size
+        self.current_hist_size = 0
 
     def forwardStep(self):
+        if (self.current_hist_size < self.hist_size):
+            self.current_hist_size += 1
         self.field = self.generateNextIteration()
-        self.cache.insert(0, self.field)
-        if len(self.cache) > self.cache_length:
-            self.cache.pop(-1)
+        self.field_data[self.field_data_index] = self.field
+        self.field_data_index = (self.field_data_index+1) % self.hist_size 
         self.contactSubscribers()
+        # print(f"Current History Size: {self.current_hist_size}")
 
     def backwardStep(self):
-        if len(self.cache) > 1:
-            self.cache.pop(0)
-            self.field = self.cache[0]
+        if(self.current_hist_size > 0):
+            self.current_hist_size -= 1
+            self.field_data_index = (self.field_data_index-1) % self.hist_size 
+            self.field = self.field_data[self.field_data_index]
             self.contactSubscribers()
-            print(f"cache len: {len(self.cache)}")
+            # print(f"Current History Size: {self.current_hist_size}")
+
 
     def tryUpdateSimulation(self):
         if(self.isSimuRunning):
@@ -49,7 +56,7 @@ class GoLModel(Subscribable):
         self.cache = self.cache[:size]
 
     def generateNextIteration(self):
-        field = [[ False for _y in range(self.y)] for _x in range(self.x)]
+        field = np.zeros(shape=self.field.shape, dtype=bool)
         for x in range(self.x):
             for y in range(self.y):
                 n = self.countNeighbours(x,y)

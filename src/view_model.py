@@ -1,10 +1,11 @@
 from subscribable import Subscribable
+import numpy as np
 
 class GoLViewModel(Subscribable):
     def __init__(self, res: int, x: int, y: int, model) -> None:
         super(GoLViewModel, self).__init__()
         self.res = res
-        self.field = [[ False for _y in range(y)] for _x in range(x)]
+        self.field = np.zeros(shape=(x,y), dtype=bool) #[[ False for _y in range(y)] for _x in range(x)]
         self.isRunning = False
         self.simuDelta = .2
         self.model = model
