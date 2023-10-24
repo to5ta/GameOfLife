@@ -3,6 +3,11 @@
 Application to simulate [Conways Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) using Python 3.10 with PySimpleGUI 4.57.0
 
 
+## Start
+
+`pip install -r requirements.txt`
+`python src/game_of_life.py`
+
 ## GUI
 * Start/Stop Simulation
 * Record frames on/off: If enabled, screenshots will be stored unter ./records/
